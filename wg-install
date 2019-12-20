@@ -7,7 +7,7 @@ TUNNEL_NAME="wg0"
 TUNNEL_CONF="/etc/wireguard/"$TUNNEL_NAME".conf"
 # Default IP for the Wireguard server
 SRV_IPV4="10.0.0.1/32"
-SRV_IPV6="fd00::1/64"
+SRV_IPV6="fd00::1/128"
 PORT="51280"
 #
 #
@@ -35,9 +35,9 @@ addClient() {
     # Check if there is a recently used IP, e.g. on the second run
     if [ -z "$LAST_USED_IPS" ]
     then
-        echo -e "${PURPLE}Recently used IPs: ${NC}" $SRV_IPV4","$SRV_IPV6
+        echo -e "${PURPLE}Recently used IPs:${NC}" $SRV_IPV4","$SRV_IPV6
     else
-        echo -e "${PURPLE}Recently used IPs: ${NC}" $LAST_USED_IPS
+        echo -e "${PURPLE}Recently used IPs:${NC}" $LAST_USED_IPS
     fi
     read -p 'IPv4: ' ipv4
     read -p 'IPv6: ' ipv6
