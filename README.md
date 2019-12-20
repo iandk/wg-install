@@ -5,11 +5,8 @@ Download
 wget -qO /usr/local/bin/wg-install https://git.io/JedO6
 chmod +x /usr/local/bin/wg-install
 ```
+If you have a FQDN configured you can skip this step, otherwise you have to open the script and change `ENDPOINT=$HOSTNAME` to `ENDPOINT="YOURIP`
 
-Open script and change `myvpn.domain.io`  your FQDN or IP
-```
-nano /usr/local/bin/wg-install
-```
 Run installer
 ```
 wg-install install
