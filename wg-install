@@ -28,7 +28,6 @@ CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 # Get the IPs of the last added client
 LAST_USED_IPS=$(cat /etc/wireguard/wg0.conf | grep "AllowedIPs" | tail -n 1 | sed 's/AllowedIPs//' | sed 's/=//' | sed -r 's/\s+//g')
-CLIENT_IP=$(cat /etc/wireguard/clients/$name"/"client.conf | grep "Address" | tail -n 1 | sed 's/Address//' | sed 's/=//' | sed -r 's/\s+//g')
 addClient() {
     clear
     echo -e "${GREEN}Adding new Wireguard Client${NC}"
@@ -123,6 +122,7 @@ if [[ $1 == "add" ]]
         clear
         echo -e "${GREEN}New client has been added!${NC}"
         echo -e "${PURPLE}Name:${NC}" $name
+        CLIENT_IP=$(cat /etc/wireguard/clients/$name"/"client.conf | grep "Address" | tail -n 1 | sed 's/Address//' | sed 's/=//' | sed -r 's/\s+//g')
         echo -e "${PURPLE}Client IPs:${NC}" $CLIENT_IP
         echo -e "${PURPLE}Client config:${NC}" cat /etc/wireguard/clients/$name"/client.conf"
         echo -e "${PURPLE}QR code:${NC}" cat /etc/wireguard/clients/$name"/qr_code.qr"
