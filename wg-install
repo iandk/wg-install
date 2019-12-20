@@ -1,7 +1,11 @@
 #!/bin/bash
 
-# Enter the domain or IP of your server, it'll be used as the endpoint of the clients
-ENDPOINT="myvpn.domain.io"
+HOSTNAME=$(hostname -f)
+ENDPOINT=$HOSTNAME
+# If your server does not have a FQDN or is not reachable via this FQDN, change $HOSTNAME to your IP e.g.
+# ENDPOINT="192.168.1.31"
+
+
 TUNNEL_NAME="wg0"
 # No changes needed
 TUNNEL_CONF="/etc/wireguard/"$TUNNEL_NAME".conf"
