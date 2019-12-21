@@ -1,13 +1,11 @@
 #!/bin/bash
 
-HOSTNAME=$(hostname -f)
-ENDPOINT=$HOSTNAME
-# If your server does not have a FQDN or is not reachable via this FQDN, change $HOSTNAME to your IP e.g.
+# If your server does not have a FQDN or is not reachable via this FQDN, change '$(hostname -f)' to your IP e.g.
 # ENDPOINT="192.168.1.31"
-
-
+ENDPOINT=$(hostname -f)
+# Default tunnel name
 TUNNEL_NAME="wg0"
-# No changes needed
+# Wireguard directory
 TUNNEL_CONF="/etc/wireguard/"$TUNNEL_NAME".conf"
 # Default IP for the Wireguard server
 SRV_IPV4="10.0.0.1/32"
@@ -25,7 +23,7 @@ GREEN='\033[0;32m'
 PURPLE='\033[0;35m'
 BLUE='\033[0;34m'
 CYAN='\033[0;36m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 # Get the IPs of the last added client
 LAST_USED_IPS=$(cat /etc/wireguard/wg0.conf | grep "AllowedIPs" | tail -n 1 | sed 's/AllowedIPs//' | sed 's/=//' | sed -r 's/\s+//g')
 addClient() {
@@ -79,6 +77,23 @@ addClient() {
         exit
     fi
 }
+deleteClient() {
+    clear
+    echo -e "${GREEN}Delete Wireguard Client${NC}"
+    echo -e "${PURPLE}Please enter the name of the client you'd like to delete${NC}"
+    read -p 'Client name: ' name
+    read -p 'Confirm: (y/n) ' confirm
+    if [[ $confirm == "y" ]]
+        then
+            # Delete client from Wireguard config
+            sed -i "/$name/,+3d" $TUNNEL_CONF
+            # Delete directory
+            rm -r /etc/wireguard/clients/$name
+
+        else
+            exit
+    fi
+}
 runInstaller() {
     clear
     # Installing Wireguard
@@ -106,14 +121,15 @@ runInstaller() {
     echo "ListenPort =" $PORT >> $TUNNEL_CONF
     # Enable IP forwarding
     echo -e "${GREEN}Enable IP forwarding${NC}"
-    echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
-    echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
+    sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/' /etc/sysctl.conf
+    sed -i 's/#net.ipv6.conf.all.forwarding=1/net.ipv6.conf.all.forwarding=1/' /etc/sysctl.conf
     sysctl -p > /dev/null 2>&1
     # Setup NAT
     echo -e "${GREEN}Setup NAT${NC}"
     INTERFACE=$(ip link | awk -F: '$0 !~ "lo|vir|wl|^[^0-9]"{print $2;getline}' | head -n 1)
     iptables -t nat -A POSTROUTING -o $INTERFACE -j MASQUERADE
     ip6tables -t nat -A POSTROUTING -o $INTERFACE -j MASQUERADE
+    apt install -y iptables-persistent
 }
 # Main flow
 if [[ $1 == "add" ]]
@@ -127,10 +143,13 @@ if [[ $1 == "add" ]]
         echo -e "${PURPLE}Client config:${NC}" cat /etc/wireguard/clients/$name"/client.conf"
         echo -e "${PURPLE}QR code:${NC}" cat /etc/wireguard/clients/$name"/qr_code.qr"
 
+elif [[ $1 == "delete" ]]
+    then
+        deleteClient
 elif [[ $1 == "install" ]]
     then
         runInstaller
 else 
-    echo -e "${GREEN}Usage: wg-client [add/install]${NC}"
+    echo -e "${GREEN}Usage: wg-client [add/delete/install]${NC}"
     exit
 fi
