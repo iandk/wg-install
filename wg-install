@@ -150,6 +150,6 @@ elif [[ $1 == "install" ]]
     then
         runInstaller
 else 
-    echo -e "${GREEN}Usage: wg-client [add/delete/install]${NC}"
+    echo -e "${GREEN}Usage: wg-install [add/delete/install]${NC}"
     exit
 fi
