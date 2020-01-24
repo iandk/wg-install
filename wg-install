@@ -42,7 +42,7 @@ addClient() {
     fi
     read -p 'IPv4: ' ipv4
     read -p 'IPv6: ' ipv6
-    echo -e "${PURPLE}Are the entered details correct?.${NC}"
+    echo -e "${PURPLE}Are the entered details correct?${NC}"
     read -p 'Confirm: (y/n) ' confirm
     if [[ $confirm == "y" ]]
     then
