@@ -73,6 +73,7 @@ addClient() {
         # Restart Wireguard
         wg-quick down $TUNNEL_NAME > /dev/null 2>&1
         wg-quick up $TUNNEL_NAME > /dev/null 2>&1
+        systemctl enable wg-quick@$TUNNEL_NAME
     else 
         exit
     fi
