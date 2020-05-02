@@ -7,14 +7,10 @@ ENDPOINT=$(hostname -f)
 TUNNEL_NAME="wg0"
 # Wireguard directory
 TUNNEL_CONF="/etc/wireguard/"$TUNNEL_NAME".conf"
-# Default IP for the Wireguard server
+# Default IPs for the Wireguard server#
 SRV_IPV4="10.0.0.1/32"
 SRV_IPV6="fd00::1/128"
 PORT="51280"
-#
-#
-# NO CHANGES AFTER THIS LINE!!!
-#
 #
 # Color codes
 RED='\033[0;31m'
@@ -25,75 +21,57 @@ BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 NC='\033[0m'
 # Get the IPs of the last added client
-LAST_USED_IPS=$(cat /etc/wireguard/wg0.conf | grep "AllowedIPs" | tail -n 1 | sed 's/AllowedIPs//' | sed 's/=//' | sed -r 's/\s+//g')
 addClient() {
-    clear
-    echo -e "${GREEN}Add new Wireguard Client${NC}"
-    echo -e "${PURPLE}Please enter a name for the client, e.g. 'mac'${NC}"
-    read -p 'Client name: ' name
-    #read -p 'Endpoint (If behind NAT, press enter): ' endpoint
-    echo -e "${PURPLE}Please enter an IPv4/IPv6 address IP for the client.${NC}"
-    # Check if there is a recently used IP, e.g. on the second run
-    if [ -z "$LAST_USED_IPS" ]
-    then
-        echo -e "${PURPLE}Recently used IPs:${NC}" $SRV_IPV4","$SRV_IPV6
-    else
-        echo -e "${PURPLE}Recently used IPs:${NC}" $LAST_USED_IPS
-    fi
-    read -p 'IPv4: ' ipv4
-    read -p 'IPv6: ' ipv6
-    echo -e "${PURPLE}Are the entered details correct?${NC}"
-    read -p 'Confirm: (y/n) ' confirm
-    if [[ $confirm == "y" ]]
-    then
-        # Generate client public and client private key
-        echo -e "${GREEN}Generating Keys${NC}"
-        mkdir /etc/wireguard/clients/$name
-        umask 077; wg genkey | tee /etc/wireguard/clients/$name"/"privatekey | wg pubkey > /etc/wireguard/clients/$name"/"publickey
-        CLIENT_PUBKEY=$(cat /etc/wireguard/clients/$name"/publickey")
-        CLIENT_PRIVKEY=$(cat /etc/wireguard/clients/$name"/privatekey")
-        # Add client to tunnel config
-        echo "# $name" >> $TUNNEL_CONF
-        echo "[Peer]" >> $TUNNEL_CONF
-        echo "PublicKey =" $CLIENT_PUBKEY >> $TUNNEL_CONF
-        echo "AllowedIPs = $ipv4"",""$ipv6" >> $TUNNEL_CONF
-        # Generate client config
-        PUBKEY=$(cat /etc/wireguard/$TUNNEL_NAME"_publickey")
-        echo "[Interface]" >> /etc/wireguard/clients/$name"/client.conf"
-        echo "Address = $ipv4"",""$ipv6" >> /etc/wireguard/clients/$name"/client.conf"
-        echo "PrivateKey = "$CLIENT_PRIVKEY >> /etc/wireguard/clients/$name"/client.conf"
-        echo "DNS = 1.1.1.1, 2606:4700:4700::1111" >> /etc/wireguard/clients/$name"/client.conf"
-        echo "[Peer]" >> /etc/wireguard/clients/$name"/client.conf"
-        echo "Endpoint = "$ENDPOINT":"$PORT >> /etc/wireguard/clients/$name"/client.conf"
-        echo "PublicKey = "$PUBKEY >> /etc/wireguard/clients/$name"/client.conf"
-        echo "AllowedIPs = ::/0, 0.0.0.0/0" >> /etc/wireguard/clients/$name"/client.conf"
-        echo "PersistentKeepalive = 25" >> /etc/wireguard/clients/$name"/client.conf"
-        # Generate QR code
-        (qrencode -t ansiutf8 < /etc/wireguard/clients/$name"/client.conf") > /etc/wireguard/clients/$name"/qr_code.qr"
-        # Restart Wireguard
-        wg-quick down $TUNNEL_NAME > /dev/null 2>&1
-        wg-quick up $TUNNEL_NAME > /dev/null 2>&1
-        systemctl enable wg-quick@$TUNNEL_NAME
-    else 
-        exit
-    fi
+    name=$1
+    AVAILABLE_IPV4=$(cat available_ips.txt | head -n 1 | cut -d, -f1)
+    AVAILABLE_IPV6=$(cat available_ips.txt | head -n 1 | cut -d, -f2)
+    # Generate client public and client private key
+    mkdir /etc/wireguard/clients/$name
+    umask 077; wg genkey | tee /etc/wireguard/clients/$name"/"privatekey | wg pubkey > /etc/wireguard/clients/$name"/"publickey
+    CLIENT_PUBKEY=$(cat /etc/wireguard/clients/$name"/publickey")
+    CLIENT_PRIVKEY=$(cat /etc/wireguard/clients/$name"/privatekey")
+    # Add client to tunnel config
+    echo "# $name" >> $TUNNEL_CONF
+    echo "[Peer]" >> $TUNNEL_CONF
+    echo "PublicKey =" $CLIENT_PUBKEY >> $TUNNEL_CONF
+    echo "AllowedIPs = $AVAILABLE_IPV4"",""$AVAILABLE_IPV6" >> $TUNNEL_CONF
+    # Generate client config
+    PUBKEY=$(cat /etc/wireguard/$TUNNEL_NAME"_publickey")
+    echo "[Interface]" >> /etc/wireguard/clients/$name"/client.conf"
+    echo "Address = $AVAILABLE_IPV4"",""$AVAILABLE_IPV6" >> /etc/wireguard/clients/$name"/client.conf"
+    echo "PrivateKey = "$CLIENT_PRIVKEY >> /etc/wireguard/clients/$name"/client.conf"
+    echo "DNS = 1.1.1.1, 2606:4700:4700::1111" >> /etc/wireguard/clients/$name"/client.conf"
+    echo "[Peer]" >> /etc/wireguard/clients/$name"/client.conf"
+    echo "Endpoint = "$ENDPOINT":"$PORT >> /etc/wireguard/clients/$name"/client.conf"
+    echo "PublicKey = "$PUBKEY >> /etc/wireguard/clients/$name"/client.conf"
+    echo "AllowedIPs = ::/0, 0.0.0.0/0" >> /etc/wireguard/clients/$name"/client.conf"
+    echo "PersistentKeepalive = 25" >> /etc/wireguard/clients/$name"/client.conf"
+    # Generate QR code
+    (qrencode -t ansiutf8 < /etc/wireguard/clients/$name"/client.conf") > /etc/wireguard/clients/$name"/qr_code.qr"
+    # Restart Wireguard
+    wg-quick down $TUNNEL_NAME > /dev/null 2>&1
+    wg-quick up $TUNNEL_NAME > /dev/null 2>&1
+    systemctl enable wg-quick@$TUNNEL_NAME
+
+
+    # Remove IPs from available IPs and add them to used IPs
+    USED_IPS=$(cat available_ips.txt | head -n 1)
+    sed -i 1d available_ips.txt
+    echo $USED_IPS | cat - used_ips.txt > temp && mv temp used_ips.txt
+
 }
 deleteClient() {
-    clear
-    echo -e "${GREEN}Delete Wireguard Client${NC}"
-    echo -e "${PURPLE}Please enter the name of the client you'd like to delete${NC}"
-    read -p 'Client name: ' name
-    read -p 'Confirm: (y/n) ' confirm
-    if [[ $confirm == "y" ]]
-        then
-            # Delete client from Wireguard config
-            sed -i "/$name/,+3d" $TUNNEL_CONF
-            # Delete directory
-            rm -r /etc/wireguard/clients/$name
-
-        else
-            exit
-    fi
+    name=$1
+    # Add used IPs to available IPs again and remove from used IPs
+    USED_IPS=$(cat /etc/wireguard/clients/$name"/"client.conf | grep "Address" | tail -n 1 | sed 's/Address//' | sed 's/=//' | sed "s/^[ \t]*//")
+    echo $USED_IPS | cat - available_ips.txt > temp && mv temp available_ips.txt
+    sed -i "s|$USED_IPS||g" used_ips.txt
+    sed -i '/^$/d' used_ips.txt
+    
+    # Delete client from Wireguard config
+    sed -i "/$name/,+3d" $TUNNEL_CONF
+    # Delete directory
+    rm -r /etc/wireguard/clients/$name
 }
 runInstaller() {
     clear
@@ -135,22 +113,34 @@ runInstaller() {
 # Main flow
 if [[ $1 == "add" ]]
     then
-        addClient
-        clear
-        echo -e "${GREEN}New client has been added!${NC}"
-        echo -e "${PURPLE}Name:${NC}" $name
-        CLIENT_IP=$(cat /etc/wireguard/clients/$name"/"client.conf | grep "Address" | tail -n 1 | sed 's/Address//' | sed 's/=//' | sed -r 's/\s+//g')
-        echo -e "${PURPLE}Client IPs:${NC}" $CLIENT_IP
-        echo -e "${PURPLE}Client config:${NC}" cat /etc/wireguard/clients/$name"/client.conf"
-        echo -e "${PURPLE}QR code:${NC}" cat /etc/wireguard/clients/$name"/qr_code.qr"
-
+        if [ -z "$2" ]
+            then
+                echo -e "${RED}No client name given${NC}"
+            else
+                addClient $2
+                echo -e "${GREEN}New client has been added!${NC}"
+                echo -e "${PURPLE}Name:${NC}" $2
+                CLIENT_IP=$(cat /etc/wireguard/clients/$2"/"client.conf | grep "Address" | tail -n 1 | sed 's/Address//' | sed 's/=//' | sed "s/^[ \t]*//")
+                echo -e "${PURPLE}Client IPs:${NC}" $CLIENT_IP
+                echo -e "${PURPLE}Client config:${NC}" cat /etc/wireguard/clients/$2"/client.conf"
+                echo -e "${PURPLE}QR code:${NC}" cat /etc/wireguard/clients/$2"/qr_code.qr"
+            fi
 elif [[ $1 == "delete" ]]
     then
-        deleteClient
+        if [ -z "$2" ]
+            then
+                echo -e "${RED}No client name given${NC}"
+            else
+                deleteClient $2
+                echo -e "${GREEN}Client has been deleted!${NC}"
+            fi
 elif [[ $1 == "install" ]]
     then
         runInstaller
 else 
-    echo -e "${GREEN}Usage: wg-install [add/delete/install]${NC}"
+    echo -e "${GREEN}Usage: wg-install [add/delete/install] [clientname]${NC}"
+    echo -e "${GREEN}Example: wg-install install${NC}"
+    echo -e "${GREEN}Example: wg-install add work${NC}"
+    echo -e "${GREEN}Example: wg-install delete work${NC}"
     exit
 fi
