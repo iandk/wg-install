@@ -23,8 +23,8 @@ NC='\033[0m'
 # Get the IPs of the last added client
 addClient() {
     name=$1
-    AVAILABLE_IPV4=$(cat available_ips.txt | head -n 1 | cut -d, -f1)
-    AVAILABLE_IPV6=$(cat available_ips.txt | head -n 1 | cut -d, -f2)
+    AVAILABLE_IPV4=$(cat /etc/wireguard/available_ips.txt | head -n 1 | cut -d, -f1)
+    AVAILABLE_IPV6=$(cat /etc/wireguard/available_ips.txt | head -n 1 | cut -d, -f2)
     # Generate client public and client private key
     mkdir /etc/wireguard/clients/$name
     umask 077; wg genkey | tee /etc/wireguard/clients/$name"/"privatekey | wg pubkey > /etc/wireguard/clients/$name"/"publickey
@@ -55,18 +55,18 @@ addClient() {
 
 
     # Remove IPs from available IPs and add them to used IPs
-    USED_IPS=$(cat available_ips.txt | head -n 1)
-    sed -i 1d available_ips.txt
-    echo $USED_IPS | cat - used_ips.txt > temp && mv temp used_ips.txt
+    USED_IPS=$(cat /etc/wireguard/available_ips.txt | head -n 1)
+    sed -i 1d /etc/wireguard/available_ips.txt
+    echo $USED_IPS | cat - /etc/wireguard/used_ips.txt > temp && mv temp /etc/wireguard/used_ips.txt
 
 }
 deleteClient() {
     name=$1
     # Add used IPs to available IPs again and remove from used IPs
     USED_IPS=$(cat /etc/wireguard/clients/$name"/"client.conf | grep "Address" | tail -n 1 | sed 's/Address//' | sed 's/=//' | sed "s/^[ \t]*//")
-    echo $USED_IPS | cat - available_ips.txt > temp && mv temp available_ips.txt
-    sed -i "s|$USED_IPS||g" used_ips.txt
-    sed -i '/^$/d' used_ips.txt
+    echo $USED_IPS | cat - /etc/wireguard/available_ips.txt > temp && mv temp /etc/wireguard/available_ips.txt
+    sed -i "s|$USED_IPS||g" /etc/wireguard/used_ips.txt
+    sed -i '/^$/d' /etc/wireguard/used_ips.txt
     
     # Delete client from Wireguard config
     sed -i "/$name/,+3d" $TUNNEL_CONF
@@ -109,6 +109,11 @@ runInstaller() {
     iptables -t nat -A POSTROUTING -o $INTERFACE -j MASQUERADE
     ip6tables -t nat -A POSTROUTING -o $INTERFACE -j MASQUERADE
     apt install -y iptables-persistent
+
+    # Write IP list
+    wget -qO /etc/wireguard/available_ips.txt https://raw.githubusercontent.com/iandk/wg-install/master/available_ips.txt
+    touch /etc/wireguard/used_ips.txt
+    
 }
 # Main flow
 if [[ $1 == "add" ]]
