@@ -1,8 +1,6 @@
 #!/bin/bash
 
-# If your server does not have a FQDN or is not reachable via this FQDN, change '$(hostname -f)' to your IP e.g.
-# ENDPOINT="192.168.1.31"
-ENDPOINT=$(hostname -f)
+ENDPOINT=$(ip addr | grep 'inet' | grep -v inet6 | grep -vE '127\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | head -1)
 # Default tunnel name
 TUNNEL_NAME="wg0"
 # Wireguard directory
