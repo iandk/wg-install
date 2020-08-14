@@ -6,7 +6,7 @@ TUNNEL_NAME="wg0"
 # Wireguard directory
 TUNNEL_CONF="/etc/wireguard/"$TUNNEL_NAME".conf"
 # Default IPs for the Wireguard server#
-SRV_IPV4="10.0.0.1/32"
+SRV_IPV4="10.1.1.1/32"
 SRV_IPV6="fd00::1/128"
 PORT="51280"
 #
