@@ -49,7 +49,7 @@ addClient() {
     echo "Endpoint = "$ENDPOINT":"$PORT >> /etc/wireguard/clients/$name"/client.conf"
     echo "PublicKey = "$PUBKEY >> /etc/wireguard/clients/$name"/client.conf"
     echo "AllowedIPs = ::/0, 0.0.0.0/0" >> /etc/wireguard/clients/$name"/client.conf"
-    echo "PersistentKeepalive = 25" >> /etc/wireguard/clients/$name"/client.conf"
+    echo "PersistentKeepalive = 15" >> /etc/wireguard/clients/$name"/client.conf"
     # Generate QR code
     (qrencode -t ansiutf8 < /etc/wireguard/clients/$name"/client.conf") > /etc/wireguard/clients/$name"/qr_code.qr"
     # Restart Wireguard
