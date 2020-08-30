@@ -21,6 +21,12 @@ NC='\033[0m'
 # Get the IPs of the last added client
 addClient() {
     name=$1
+    # Check if client already exists
+    if [ -d "/etc/wireguard/clients/$name" ] 
+    then
+        echo -e "${RED}Sorry, the client already exists!${NC}"
+        exit
+    fi
     AVAILABLE_IPV4=$(cat /etc/wireguard/available_ips.txt | head -n 1 | cut -d, -f1)
     AVAILABLE_IPV6=$(cat /etc/wireguard/available_ips.txt | head -n 1 | cut -d, -f2)
     # Generate client public and client private key
@@ -60,6 +66,12 @@ addClient() {
 }
 deleteClient() {
     name=$1
+     # Check if client exists
+    if [ ! -d "/etc/wireguard/clients/$name" ] 
+    then
+        echo -e "${RED}Sorry, the client does not exists!${NC}"
+        exit
+    fi
     # Add used IPs to available IPs again and remove from used IPs
     USED_IPS=$(cat /etc/wireguard/clients/$name"/"client.conf | grep "Address" | tail -n 1 | sed 's/Address//' | sed 's/=//' | sed "s/^[ \t]*//")
     echo $USED_IPS | cat - /etc/wireguard/available_ips.txt > temp && mv temp /etc/wireguard/available_ips.txt
