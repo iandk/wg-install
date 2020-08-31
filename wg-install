@@ -197,7 +197,7 @@ else
     echo -e "${GREEN}Example: wg-install clients${NC}"
     echo -e "Show all clients\n"
     echo -e "${GREEN}Example: wg-install client work${NC}"
-    echo -e "Show info about client 'work'"
+    echo -e "Show info about client 'work'\n"
     echo -e "${GREEN}Example: wg-install update${NC}"
     echo -e "Update the wg-install script"
     exit
