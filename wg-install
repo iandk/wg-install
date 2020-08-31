@@ -90,7 +90,6 @@ runInstaller() {
     echo "deb http://deb.debian.org/debian buster-backports main" >/etc/apt/sources.list.d/backports.list
     apt update 
     apt install -y linux-headers-$(uname -r) bc qrencode resolvconf wireguard-dkms wireguard wireguard-tools
-    apt install -y -t buster-backports wireguard
     # Create direcory
     mkdir /etc/wireguard/clients
     rm /etc/wireguard/* > /dev/null 2>&1
