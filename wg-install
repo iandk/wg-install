@@ -139,6 +139,11 @@ showClient() {
 
 }
 
+update() {
+    wget -qO /usr/local/bin/wg-install https://git.io/JedO6
+    chmod +x /usr/local/bin/wg-install
+    echo -e "${GREEN}Done!${NC}"
+}
 
 # Main flow
 if [[ $1 == "add" ]]
@@ -176,6 +181,10 @@ elif [[ $1 == "client" ]]
     then
         showClient $2
 
+elif [[ $1 == "update" ]]
+    then
+        update
+
 
 else 
     echo -e "${GREEN}Usage: wg-install [add/delete/install/clients/client] [clientname]${NC}\n\n"
@@ -189,5 +198,7 @@ else
     echo -e "Show all clients\n"
     echo -e "${GREEN}Example: wg-install client work${NC}"
     echo -e "Show info about client 'work'"
+    echo -e "${GREEN}Example: wg-install update${NC}"
+    echo -e "Update the wg-install script"
     exit
 fi
