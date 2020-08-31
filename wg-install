@@ -89,7 +89,7 @@ runInstaller() {
     echo -e "${GREEN}Install Wireguard${NC}"
     echo "deb http://deb.debian.org/debian buster-backports main" >/etc/apt/sources.list.d/backports.list
     apt update 
-    apt install -y linux-headers-$(uname -r) bc qrencode resolvconf
+    apt install -y linux-headers-$(uname -r) bc qrencode resolvconf wireguard-dkms wireguard wireguard-tools
     apt install -y -t buster-backports wireguard
     # Create direcory
     mkdir /etc/wireguard/clients
@@ -125,6 +125,22 @@ runInstaller() {
     touch /etc/wireguard/used_ips.txt
     
 }
+showClients() {
+    clients=$(ls /etc/wireguard/clients)
+    echo $clients
+}
+
+showClient() {
+    name=$1
+    echo -e "${PURPLE}Name:${NC}" $name
+    CLIENT_IP=$(cat /etc/wireguard/clients/$name"/"client.conf | grep "Address" | tail -n 1 | sed 's/Address//' | sed 's/=//' | sed "s/^[ \t]*//")
+    echo -e "${PURPLE}Client IPs:${NC}" $CLIENT_IP
+    echo -e "${PURPLE}Client config:${NC}" cat /etc/wireguard/clients/$name"/client.conf"
+    echo -e "${PURPLE}QR code:${NC}" cat /etc/wireguard/clients/$name"/qr_code.qr"
+
+}
+
+
 # Main flow
 if [[ $1 == "add" ]]
     then
@@ -152,10 +168,27 @@ elif [[ $1 == "delete" ]]
 elif [[ $1 == "install" ]]
     then
         runInstaller
+
+elif [[ $1 == "clients" ]]
+    then
+        showClients
+
+elif [[ $1 == "client" ]]
+    then
+        showClient $2
+
+
 else 
-    echo -e "${GREEN}Usage: wg-install [add/delete/install] [clientname]${NC}"
+    echo -e "${GREEN}Usage: wg-install [add/delete/install/clients/client] [clientname]${NC}\n\n"
     echo -e "${GREEN}Example: wg-install install${NC}"
+    echo -e "Install Wireguard Server\n"
     echo -e "${GREEN}Example: wg-install add work${NC}"
+    echo -e "Add new client with name 'work'\n"
     echo -e "${GREEN}Example: wg-install delete work${NC}"
+    echo -e "Delete client 'work'\n"
+    echo -e "${GREEN}Example: wg-install clients${NC}"
+    echo -e "Show all clients\n"
+    echo -e "${GREEN}Example: wg-install client work${NC}"
+    echo -e "Show info about client 'work'"
     exit
 fi
