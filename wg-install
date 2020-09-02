@@ -82,6 +82,10 @@ deleteClient() {
     sed -i "/$name/,+3d" $TUNNEL_CONF
     # Delete directory
     rm -r /etc/wireguard/clients/$name
+    
+    # Restart Wireguard
+    wg-quick down $TUNNEL_NAME > /dev/null 2>&1
+    wg-quick up $TUNNEL_NAME > /dev/null 2>&1
 }
 runInstaller() {
     clear
@@ -131,6 +135,12 @@ showClients() {
 
 showClient() {
     name=$1
+    # Check if client exists
+    if [ ! -d "/etc/wireguard/clients/$name" ] 
+    then
+        echo -e "${RED}Sorry, the client does not exists!${NC}"
+        exit
+    fi
     echo -e "${PURPLE}Name:${NC}" $name
     CLIENT_IP=$(cat /etc/wireguard/clients/$name"/"client.conf | grep "Address" | tail -n 1 | sed 's/Address//' | sed 's/=//' | sed "s/^[ \t]*//")
     echo -e "${PURPLE}Client IPs:${NC}" $CLIENT_IP
