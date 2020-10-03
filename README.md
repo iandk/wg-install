@@ -30,3 +30,12 @@ Delete a client
 ```shell
 wg-install delete
 ```
+Show all clients
+```shell
+wg-install clients
+```
+Show info for a single client
+```shell
+wg-install client [name]
+```
+
