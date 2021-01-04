@@ -93,7 +93,7 @@ runInstaller() {
     echo -e "${GREEN}Install Wireguard${NC}"
     echo "deb http://deb.debian.org/debian buster-backports main" >/etc/apt/sources.list.d/backports.list
     apt update 
-    apt install -y linux-headers-$(uname -r) bc qrencode resolvconf wireguard-dkms wireguard wireguard-tools
+    apt install -y linux-headers-$(uname -r) bc qrencode resolvconf wireguard-dkms wireguard wireguard-tools iptables-persistent
     # Create direcory
     mkdir /etc/wireguard/clients
     rm /etc/wireguard/* > /dev/null 2>&1
@@ -121,7 +121,6 @@ runInstaller() {
     INTERFACE=$(ip link | awk -F: '$0 !~ "lo|vir|wl|^[^0-9]"{print $2;getline}' | head -n 1)
     iptables -t nat -A POSTROUTING -o $INTERFACE -j MASQUERADE
     ip6tables -t nat -A POSTROUTING -o $INTERFACE -j MASQUERADE
-    apt install -y iptables-persistent
 
     # Write IP list
     wget -qO /etc/wireguard/available_ips.txt https://raw.githubusercontent.com/iandk/wg-install/master/available_ips.txt
