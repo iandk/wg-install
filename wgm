@@ -100,6 +100,7 @@ addUser() {
     echo -e "${PURPLE}user IPs:${NC}" $user_IP
     echo -e "${PURPLE}user config:${NC}" cat /etc/wireguard/users/$name"/user.conf"
     echo -e "${PURPLE}QR code:${NC}" cat /etc/wireguard/users/$name"/qr_code.qr"
+    echo ""
 }
 
 deleteUser() {
@@ -133,8 +134,13 @@ deleteUser() {
     wg-quick down $TUNNEL_NAME > /dev/null 2>&1
     wg-quick up $TUNNEL_NAME > /dev/null 2>&1
 
+    clear
+    echo -e "${CYAN}WIREGUARD MANAGER${NC}"
+    echo ""
+
     # Done
     echo -e "${GREEN}Done!${NC}"
+    echo ""
 }
 
 
@@ -193,10 +199,10 @@ runInstaller() {
     echo "deb http://deb.debian.org/debian buster-backports main" >/etc/apt/sources.list.d/backports.list
     apt update 
     apt install -y linux-headers-$(uname -r) bc qrencode resolvconf wireguard-dkms wireguard wireguard-tools iptables-persistent
+    # Clean existing directory
+    rm -rf /etc/wireguard > /dev/null 2>&1
     # Create direcory
     mkdir -p /etc/wireguard/users
-    rm /etc/wireguard/* > /dev/null 2>&1
-    rm -r /etc/wireguard/users/* > /dev/null 2>&1
     # Generate public and private key
     umask 077; wg genkey | tee /etc/wireguard/$TUNNEL_NAME"_privatekey" | wg pubkey > /etc/wireguard/$TUNNEL_NAME"_publickey"
     PUBKEY=$(cat /etc/wireguard/$TUNNEL_NAME"_publickey")
