@@ -12,30 +12,15 @@ apt update && apt upgrade -y && reboot
 ## Installation
 Download
 ```shell
-wget -qO /usr/local/bin/wg-install https://git.io/JedO6
-chmod +x /usr/local/bin/wg-install
+wget -qO /usr/local/bin/wgm https://git.io/JtRFm
+chmod +x /usr/local/bin/wgm
 ```
 Run installer
 ```shell
-wg-install install
+wgm
 ```
 
 ## Usage
-
-Add a new client
 ```shell
-wg-install add
+wgm
 ```
-Delete a client
-```shell
-wg-install delete
-```
-Show all clients
-```shell
-wg-install clients
-```
-Show info for a single client
-```shell
-wg-install client [name]
-```
-
