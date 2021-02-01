@@ -68,7 +68,7 @@ addUser() {
     PUBKEY=$(cat /etc/wireguard/$TUNNEL_NAME"_publickey")
     echo "[Interface]" >> /etc/wireguard/users/$name"/user.conf"
     echo "Address = $AVAILABLE_IPV4"",""$AVAILABLE_IPV6" >> /etc/wireguard/users/$name"/user.conf"
-    echo "PrivateKey = "$user_PRIVKEY >> /etc/wireguard/users/$name"/user.conf"
+    echo "PrivateKey = "$USER_PRIVKEY >> /etc/wireguard/users/$name"/user.conf"
     echo "DNS = 1.1.1.1, 2606:4700:4700::1111" >> /etc/wireguard/users/$name"/user.conf"
     echo "[Peer]" >> /etc/wireguard/users/$name"/user.conf"
     echo "Endpoint = "$ENDPOINT":"$PORT >> /etc/wireguard/users/$name"/user.conf"
@@ -97,8 +97,8 @@ addUser() {
     echo ""
     echo -e "${PURPLE}Name:${NC}" $name
     user_IP=$(cat /etc/wireguard/users/$name"/"user.conf | grep "Address" | tail -n 1 | sed 's/Address//' | sed 's/=//' | sed "s/^[ \t]*//")
-    echo -e "${PURPLE}user IPs:${NC}" $user_IP
-    echo -e "${PURPLE}user config:${NC}" cat /etc/wireguard/users/$name"/user.conf"
+    echo -e "${PURPLE}User IPs:${NC}" $user_IP
+    echo -e "${PURPLE}User config:${NC}" cat /etc/wireguard/users/$name"/user.conf"
     echo -e "${PURPLE}QR code:${NC}" cat /etc/wireguard/users/$name"/qr_code.qr"
     echo ""
 }
