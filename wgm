@@ -193,6 +193,10 @@ runUpdate() {
     echo -e "${CYAN}WIREGUARD MANAGER${NC}"
     wget -qO /usr/local/bin/wgm https://git.io/JtRFm
     chmod +x /usr/local/bin/wgm
+    
+    # Done
+    echo -e "${GREEN}Done!${NC}"
+    echo ""
 }
 
 
