@@ -149,8 +149,12 @@ showUsers() {
     echo -e "${CYAN}WIREGUARD MANAGER${NC}"
     echo ""
     echo -ne "${GREEN}Added users: ${NC}"
-    users=$(ls /etc/wireguard/users)
-    echo $users
+    echo ""
+    for user in /etc/wireguard/users/*; do
+        name=$(echo $user | sed 's:.*/::')
+        user_ip=$(cat /etc/wireguard/users/$name"/"user.conf | grep "Address" | tail -n 1 | sed 's/Address//' | sed 's/=//' | sed "s/^[ \t]*//")        
+        echo -e ${BLUE}$name${NC} "->" $user_ip
+    done
     echo ""
 }
 
