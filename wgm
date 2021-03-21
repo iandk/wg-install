@@ -263,8 +263,8 @@ Choose an option: "
 	        1) addUser ;;
 	        2) deleteUser ;;
 	        3) showSingleUser ;;
-	        4) showUsers ;;
-	        5) runUpdate; launchMenu;;
+	        4) showUsers ;; 
+	        5) runUpdate ;;
 	        6) runInstaller ;;
 		0) exit 0 ;;
 		*) echo -e $red"Wrong option."$clear; WrongCommand;;
