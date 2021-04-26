@@ -239,6 +239,10 @@ runInstaller() {
     wg-quick down $TUNNEL_NAME > /dev/null 2>&1
     wg-quick up $TUNNEL_NAME > /dev/null 2>&1
 
+    # Save iptables rules 
+    /sbin/iptables-save > /etc/iptables/rules.v4
+    /sbin/ip6tables-save > /etc/iptables/rules.v6
+
 
     echo -e "${GREEN}Done!${NC}"
 
